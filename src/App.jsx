@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import Box from "./component/Box";
 import "./App.css";
-import { useState } from "react";
 const choice = {
   rock: {
     name: "Rock",
@@ -15,40 +15,58 @@ const choice = {
     img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuXW8UgLnh5BGDf6ZcV32KHs5QF7CLMxau2w&s",
   },
 };
+
 function App() {
   const [userSelect, setUserSelect] = useState(null);
   const [computerSelect, setComputerSelect] = useState(null);
-  const [result, setResult] = useState("");
+  const [userResult, setUserResult] = useState("");
+  const [computerResult, setComputerResult] = useState("");
+
   const play = (userChoice) => {
-    setUserSelect(choice[userChoice]);
-    let computerChoice = randomChoice();
-    setComputerSelect(computerChoice);
-    setResult(judgement(choice[userChoice], computerChoice));
+    const user = choice[userChoice];
+    const computer = randomChoice();
+
+    setUserSelect(user);
+    setComputerSelect(computer);
+
+    const userJudgement = judgement(user, computer);
+    const computerJudgement = invertResult(userJudgement);
+
+    setUserResult(userJudgement);
+    setComputerResult(computerJudgement);
   };
 
-  const judgement = (user, computer) => {
-    if (user.name === computer.name) {
-      return "tie";
-    } else if (user.name === "Rock")
-      return computer.name === "Scissors" ? "win" : "lose";
-    else if (user.name === "Scissors")
-      return computer.name === "Paper" ? "win" : "lose";
-    else if (user.name === "Paper")
-      return computer.name === "Rock" ? "win" : "lose";
-  };
   const randomChoice = () => {
-    let itemArray = Object.keys(choice); //객체의 키값만 뽑아서 array로 만들어줌
-    let randomItem = Math.floor(Math.random() * itemArray.length);
-    let final = itemArray[randomItem];
-    return choice[final];
+    const keys = Object.keys(choice);
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    return choice[randomKey];
   };
+
+  // 유저 기준 결과 계산
+  const judgement = (user, computer) => {
+    if (user.name === computer.name) return "tie";
+    if (user.name === "Rock")
+      return computer.name === "Scissors" ? "win" : "lose";
+    if (user.name === "Scissors")
+      return computer.name === "Paper" ? "win" : "lose";
+    if (user.name === "Paper") return computer.name === "Rock" ? "win" : "lose";
+  };
+
+  // 컴퓨터는 반대 결과
+  const invertResult = (result) => {
+    if (result === "win") return "lose";
+    if (result === "lose") return "win";
+    return "tie";
+  };
+
   return (
     <div className="wrapper">
       <div className="main">
-        <Box title="You" item={userSelect} result={result} />
-        <Box title="Computer" item={computerSelect} />
+        <Box title="You" item={userSelect} result={userResult} />
+        <Box title="Computer" item={computerSelect} result={computerResult} />
       </div>
-      <div className="main">
+
+      <div className="buttons">
         <button onClick={() => play("scissors")}>가위</button>
         <button onClick={() => play("rock")}>바위</button>
         <button onClick={() => play("paper")}>보</button>
